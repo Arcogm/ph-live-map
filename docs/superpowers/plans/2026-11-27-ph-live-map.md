@@ -251,14 +251,14 @@ Desktop 1440×900 with visible quake circles and one open popup; save `docs/scre
 
 What it is (3 sentences), screenshot, features list, run (`npm install`, `npm run dev`), build/deploy, data sources and required attribution, USGS-instead-of-PHIVOLCS note, architecture (five lines mapping files to responsibilities), accessibility notes incl. weather-is-click-only limitation, “what I learned” 3–5 sentences.
 
-- [ ] **Step 3: Create the GitHub repo and push**
+- [x] **Step 3: Create the GitHub repo and push**
 
 `gh repo create ph-live-map --public --source . --push`, confirm the repo description and topics (`leaflet`, `earthquakes`, `weather`, `philippines`, `usgs`, `open-meteo`, `vite`, `vanilla-js`).
 
-- [ ] **Step 4: Enable Pages via Actions and verify the deployed URL**
+- [x] **Step 4: Enable Pages via Actions and verify the deployed URL**
 
 `gh api` to set `build_type: workflow`, watch the run, open the `https://arcogm.github.io/ph-live-map/` URL, verify map, quakes, weather popup, mobile layout, and no console errors. Confirm no keys in `git log -p` / `dist`.
 
-- [ ] **Step 5: Commit and tag**
+- [x] **Step 5: Commit and tag**
 
 Commit README and screenshot; confirm the project spec's definition-of-done checklist item by item: phases 1–4 work in the deployed version, real phone and desktop, no API keys in code or git history, loading/error/empty states tested via network-off, README has demo media, run steps, credits, and learnings.
