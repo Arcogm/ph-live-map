@@ -3,7 +3,8 @@ import "leaflet/dist/leaflet.css";
 
 import { loadEarthquakes, mountEarthquakes } from "./layers/earthquakes.js";
 import { mountWeather } from "./layers/weather.js";
-import { formatManila } from "./ui/format.js";
+import { panelStatusCopy } from "./ui/panel-state.js";
+import { mountPanel } from "./ui/panel.js";
 
 const PH_CENTER = [12.6, 122.2];
 const PH_ZOOM = 5;
@@ -45,14 +46,7 @@ L.tileLayer(
 L.control.zoom({ position: "topright" }).addTo(map);
 L.control.scale({ position: "bottomleft", imperial: false }).addTo(map);
 
-/* ---------- app state ---------- */
-
-const state = {
-  status: "idle",
-  quakes: [],
-  fetchedAt: null,
-  lastError: null,
-};
+/* ---------- layers ---------- */
 
 const earthquakes = mountEarthquakes(map);
 const weather = mountWeather(map);
@@ -66,7 +60,15 @@ map.on("click", (event) => {
   weather.show(event.latlng.lat, event.latlng.lng);
 });
 
-/** Snapshot of the earthquake load state, for the panel and freshness timer. */
+/* ---------- state ---------- */
+
+const state = {
+  status: "idle",
+  quakes: [],
+  fetchedAt: null,
+  lastError: null,
+};
+
 export function getQuakeState() {
   return {
     status: state.status,
@@ -76,87 +78,25 @@ export function getQuakeState() {
   };
 }
 
-const liveStatus = document.getElementById("live-status");
-const liveText = document.getElementById("live-text");
-const statusEl = document.getElementById("status");
-const refreshButton = document.getElementById("refresh");
+/* ---------- panel ---------- */
 
-function setLive(stateName, text) {
-  liveStatus.dataset.state = stateName;
-  liveText.textContent = text;
-}
+const panel = mountPanel({
+  onRefresh: () => refresh({ force: true }),
+  onToggleQuakes: (visible) => earthquakes.setVisible(visible),
+  onToggleWeather: (enabled) => weather.setEnabled(enabled),
+  onFilter: (minMag) => earthquakes.setFilter(minMag),
+  onSelectQuake: (id, { closeSheet } = {}) => {
+    if (closeSheet) panel.close({ restoreFocus: false });
+    earthquakes.focusQuake(id);
+  },
+  getQuakes: () => state.quakes,
+  getStatus: () => getQuakeState(),
+});
 
-function renderStatus() {
-  statusEl.classList.toggle("is-error", state.status === "error");
-  statusEl.replaceChildren();
+/* ---------- loading ---------- */
 
-  if (state.status === "loading") {
-    const wrap = document.createElement("p");
-    wrap.className = "status-loading";
-    const spin = document.createElement("span");
-    spin.className = "spinner";
-    spin.setAttribute("aria-hidden", "true");
-    const label = document.createElement("span");
-    label.textContent = "Loading earthquakes…";
-    wrap.append(spin, label);
-    statusEl.append(wrap);
-    setLive("loading", "Updating…");
-    return;
-  }
-
-  if (state.status === "error") {
-    const text = document.createElement("p");
-    text.textContent = state.fetchedAt
-      ? `Couldn't refresh. Showing data from ${formatManila(state.fetchedAt)}.`
-      : "Could not load earthquakes. Check your connection and try again.";
-    statusEl.append(text);
-    setLive("offline", state.fetchedAt ? `Offline · data from ${formatManila(state.fetchedAt)}` : "Offline · no data yet");
-    return;
-  }
-
-  if (state.status === "empty") {
-    const text = document.createElement("p");
-    text.textContent = "No earthquakes in the last 7 days.";
-    statusEl.append(text);
-    setLive("live", "Live · no recent quakes");
-    return;
-  }
-
-  if (state.status === "ready") {
-    const text = document.createElement("p");
-    text.textContent = `${state.quakes.length} earthquake${state.quakes.length === 1 ? "" : "s"} in the last 7 days. Updated ${formatManila(state.fetchedAt)}.`;
-    statusEl.append(text);
-    setLive("live", `Live · updated ${formatManila(state.fetchedAt)}`);
-  }
-}
-
-async function refresh({ force = false } = {}) {
-  refreshButton.disabled = true;
-  state.status = "loading";
-  renderStatus();
-
-  try {
-    const { quakes, fetchedAt } = await loadEarthquakes({ force });
-    state.quakes = quakes;
-    state.fetchedAt = fetchedAt;
-    state.lastError = null;
-    state.status = quakes.length ? "ready" : "empty";
-    earthquakes.setQuakes(quakes);
-    clearMapMessage();
-  } catch (error) {
-    state.lastError = error;
-    state.status = "error";
-    if (!state.fetchedAt) {
-      // Nothing on the map yet: make the failure visible without a reload.
-      showMapMessage(
-        "Could not load earthquakes. Check your connection and try again.",
-        () => refresh({ force: true }),
-      );
-    }
-  } finally {
-    refreshButton.disabled = false;
-    renderStatus();
-  }
+function pushStatus() {
+  panel.setStatus({ status: state.status, fetchedAt: state.fetchedAt, lastError: state.lastError });
 }
 
 function showMapMessage(message, onRetry) {
@@ -186,10 +126,31 @@ function showMapMessage(message, onRetry) {
 
 const clearMapMessage = () => document.getElementById("map-error")?.remove();
 
-refreshButton.addEventListener("click", () => refresh({ force: true }));
+async function refresh({ force = false } = {}) {
+  state.status = "loading";
+  pushStatus();
 
-document.getElementById("toggle-weather").addEventListener("change", (event) => {
-  weather.setEnabled(event.currentTarget.checked);
-});
+  try {
+    const { quakes, fetchedAt } = await loadEarthquakes({ force });
+    state.quakes = quakes;
+    state.fetchedAt = fetchedAt;
+    state.lastError = null;
+    state.status = quakes.length ? "ready" : "empty";
+
+    earthquakes.setQuakes(quakes);
+    panel.setQuakes(quakes);
+    clearMapMessage();
+  } catch (error) {
+    state.lastError = error;
+    state.status = "error";
+    if (!state.fetchedAt) {
+      showMapMessage("Could not load earthquakes. Check your connection and try again.", () =>
+        refresh({ force: true }),
+      );
+    }
+  } finally {
+    pushStatus();
+  }
+}
 
 refresh();

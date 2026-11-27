@@ -87,7 +87,7 @@ export function mountEarthquakes(map) {
     markers.clear();
     if (!visible) return;
 
-    const shown = quakes.filter((q) => q.mag == null || q.mag >= minMag);
+    const shown = minMag === 0 ? quakes : quakes.filter((q) => q.mag != null && q.mag >= minMag);
     for (const quake of shown) {
       const marker = markerFor(quake);
       markers.set(quake.id, marker);
