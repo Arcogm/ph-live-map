@@ -66,3 +66,15 @@ test("set refreshes the stored time", () => {
 
   assert.equal(cache.get("k"), "new");
 });
+
+test("clear empties the cache", () => {
+  const cache = createCache({ ttl: TTL, now: clock().now });
+
+  cache.set("a", 1);
+  cache.set("b", 2);
+  cache.clear();
+
+  assert.equal(cache.get("a"), undefined);
+  assert.equal(cache.get("b"), undefined);
+  assert.equal(cache.size(), 0);
+});
