@@ -2,6 +2,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 import { loadEarthquakes, mountEarthquakes } from "./layers/earthquakes.js";
+import { mountWeather } from "./layers/weather.js";
 import { formatManila } from "./ui/format.js";
 
 const PH_CENTER = [12.6, 122.2];
@@ -54,6 +55,16 @@ const state = {
 };
 
 const earthquakes = mountEarthquakes(map);
+const weather = mountWeather(map);
+
+// Weather only on a deliberate map click: never on hover, never when the
+// click belonged to a quake circle (circle markers stop bubbling, and this
+// second check catches anything that slips through).
+map.on("click", (event) => {
+  if (!weather.isEnabled()) return;
+  if (event.sourceTarget !== map) return;
+  weather.show(event.latlng.lat, event.latlng.lng);
+});
 
 /** Snapshot of the earthquake load state, for the panel and freshness timer. */
 export function getQuakeState() {
@@ -176,5 +187,9 @@ function showMapMessage(message, onRetry) {
 const clearMapMessage = () => document.getElementById("map-error")?.remove();
 
 refreshButton.addEventListener("click", () => refresh({ force: true }));
+
+document.getElementById("toggle-weather").addEventListener("change", (event) => {
+  weather.setEnabled(event.currentTarget.checked);
+});
 
 refresh();
