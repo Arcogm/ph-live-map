@@ -14,8 +14,9 @@ A small, fast dashboard that shows live earthquakes and click-anywhere weather o
 - **Quake popups** — place, magnitude, depth, and local time in Asia/Manila.
 - **Weather on click** — current temperature, feels-like, rain, wind speed and direction, and coordinates for any point you click (Open-Meteo).
 - **Honest freshness** — data is cached for five minutes; the brand shows Live / Updating / Stale / Offline, and the app keeps the last good data when a refresh fails.
-- **Layer toggles and a magnitude filter** — All / 4.5+ / 5.5+ / 6.5+, plus a legend and a recent-earthquakes list.
+- **Layer toggles and a magnitude filter** — All / 4.5+ / 5.5+ / 6.5+, plus a legend and a recent-earthquakes list that reads in relative time ("3 h ago") with the full Manila date on hover.
 - **Responsive and keyboard friendly** — the control panel collapses to a sheet on phones, and every control (including the quake list that opens popups) is reachable by keyboard.
+- **Accessible by measurement** — text and secondary chrome pass WCAG AA contrast (guarded by a test), touch targets are at least 24 px, and Lighthouse scores 100 for accessibility and best practices.
 
 ## Run it locally
 
@@ -65,11 +66,13 @@ The design doc originally chose CARTO dark tiles. When building, CARTO began wat
 - `src/utils/cache.js` — tiny in-memory TTL cache with an injectable clock.
 - `src/ui/format.js` — pure formatting helpers (Manila time, depth, compass, bins).
 
+Tests live in `test/` (`node --test`), including a contrast guard that reads the CSS tokens, so an inaccessible `--faint` fails CI rather than shipping.
+
 To rebuild `docs/demo.gif` from frame PNGs: `node tools/make-demo-gif.mjs a.png b.png c.png` (no ffmpeg needed).
 
 ## Accessibility notes
 
-All chrome is ordinary buttons, checkboxes, and selects, so focus and activation come from the browser. Status changes are announced through an `aria-live="polite"` region, and the spinner respects `prefers-reduced-motion`. Earthquake popups can be opened from the keyboard through the labelled quake list in the panel. **Weather is click-only**: picking a point with a non-pointer control is new UI the spec did not ask for, so it is a documented limitation rather than a hidden trap.
+All chrome is ordinary buttons, checkboxes, and selects, so focus and activation come from the browser. Status changes are announced through an `aria-live="polite"` region, and the spinner respects `prefers-reduced-motion`. Earthquake popups can be opened from the keyboard through the labelled quake list in the panel; each list row exposes magnitude, place, and relative time as its accessible name. Secondary text uses `--faint`, which clears 4.5:1 on both panel surfaces (enforced by `test/contrast.test.js`), and credits/footer links have 24 px touch targets. **Weather is click-only**: picking a point with a non-pointer control is new UI the spec did not ask for, so it is a documented limitation rather than a hidden trap.
 
 ## What I learned
 
