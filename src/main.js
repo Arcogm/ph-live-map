@@ -3,7 +3,7 @@ import "leaflet/dist/leaflet.css";
 
 import { loadEarthquakes, mountEarthquakes } from "./layers/earthquakes.js";
 import { mountWeather } from "./layers/weather.js";
-import { panelStatusCopy } from "./ui/panel-state.js";
+import { mountFreshness } from "./ui/freshness.js";
 import { mountPanel } from "./ui/panel.js";
 
 const PH_CENTER = [12.6, 122.2];
@@ -67,6 +67,7 @@ const state = {
   quakes: [],
   fetchedAt: null,
   lastError: null,
+  inFlight: false,
 };
 
 export function getQuakeState() {
@@ -127,6 +128,8 @@ function showMapMessage(message, onRetry) {
 const clearMapMessage = () => document.getElementById("map-error")?.remove();
 
 async function refresh({ force = false } = {}) {
+  if (state.inFlight) return;
+  state.inFlight = true;
   state.status = "loading";
   pushStatus();
 
@@ -149,8 +152,20 @@ async function refresh({ force = false } = {}) {
       );
     }
   } finally {
+    state.inFlight = false;
     pushStatus();
   }
 }
 
 refresh();
+
+/* ---------- freshness ---------- */
+
+// While the tab is visible, pick up new quakes once data passes five
+// minutes. A hidden tab costs nothing; coming back checks immediately.
+const freshness = mountFreshness({
+  getFetchedAt: () => state.fetchedAt,
+  canRefresh: () => !state.inFlight,
+  refresh: () => refresh(),
+});
+freshness.start();

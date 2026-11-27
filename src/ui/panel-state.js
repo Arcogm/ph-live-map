@@ -1,4 +1,5 @@
 import { formatManila } from "./format.js";
+import { isStale } from "./freshness.js";
 
 /** Quakes at or above the threshold; unknown magnitudes only under "All". */
 export function filterQuakes(quakes, minMag) {
@@ -16,17 +17,23 @@ export function emptyMessage({ status, filter, hasQuakes }) {
   return null;
 }
 
-/** Brand/panel state word and copy from the load state. */
-export function panelStatusCopy({ status, fetchedAt }) {
+/**
+ * Brand/panel state word and copy from the load state.
+ *
+ * Honesty rules: "Live" only while the data is inside the ttl, "Stale" when
+ * older data is still on the map, and "Offline" only when the last request
+ * failed and there is nothing cached to show.
+ */
+export function panelStatusCopy({ status, fetchedAt, now = Date.now() }) {
   if (status === "loading") return { state: "loading", text: "Updating…" };
   if (status === "error") {
-    return {
-      state: "offline",
-      text: fetchedAt ? `Offline · data from ${formatManila(fetchedAt)}` : "Offline · no data yet",
-    };
+    if (fetchedAt == null) return { state: "offline", text: "Offline · no data yet" };
+    return { state: "stale", text: `Stale · updated ${formatManila(fetchedAt)}` };
   }
-  if (status === "ready") return { state: "live", text: `Live · updated ${formatManila(fetchedAt)}` };
   if (status === "empty") return { state: "live", text: "Live · no recent quakes" };
-  if (status === "stale") return { state: "stale", text: `Stale · updated ${formatManila(fetchedAt)}` };
+  if (status === "ready" || status === "stale") {
+    if (isStale(fetchedAt, now)) return { state: "stale", text: `Stale · updated ${formatManila(fetchedAt)}` };
+    return { state: "live", text: `Live · updated ${formatManila(fetchedAt)}` };
+  }
   return { state: "idle", text: "Starting…" };
 }

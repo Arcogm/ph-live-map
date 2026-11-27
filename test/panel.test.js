@@ -28,13 +28,20 @@ test("empty messages name the exact state", () => {
 
 test("panel status copy mirrors the brand states", () => {
   const fetchedAt = Date.UTC(2026, 10, 27, 8, 0, 0);
+  const now = fetchedAt + 60_000;
   assert.deepEqual(panelStatusCopy({ status: "loading", fetchedAt: null }), { state: "loading", text: "Updating…" });
-  assert.deepEqual(panelStatusCopy({ status: "ready", fetchedAt }), { state: "live", text: "Live · updated 16:00" });
-  assert.deepEqual(panelStatusCopy({ status: "empty", fetchedAt }), { state: "live", text: "Live · no recent quakes" });
-  assert.deepEqual(panelStatusCopy({ status: "error", fetchedAt }), {
-    state: "offline",
-    text: "Offline · data from 16:00",
+  assert.deepEqual(panelStatusCopy({ status: "ready", fetchedAt, now }), { state: "live", text: "Live · updated 16:00" });
+  assert.deepEqual(panelStatusCopy({ status: "empty", fetchedAt, now }), { state: "live", text: "Live · no recent quakes" });
+  assert.deepEqual(panelStatusCopy({ status: "error", fetchedAt, now }), {
+    state: "stale",
+    text: "Stale · updated 16:00",
   });
   assert.deepEqual(panelStatusCopy({ status: "error", fetchedAt: null }), { state: "offline", text: "Offline · no data yet" });
   assert.deepEqual(panelStatusCopy({ status: "idle", fetchedAt: null }), { state: "idle", text: "Starting…" });
+});
+
+test("kept data turns stale once it is older than the ttl", () => {
+  const fetchedAt = Date.UTC(2026, 10, 27, 8, 0, 0);
+  const now = fetchedAt + 5 * 60_000;
+  assert.deepEqual(panelStatusCopy({ status: "ready", fetchedAt, now }), { state: "stale", text: "Stale · updated 16:00" });
 });
