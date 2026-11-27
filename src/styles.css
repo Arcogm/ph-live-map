@@ -475,6 +475,35 @@ select:hover {
   display: flex;
 }
 
+/* failure card on the map itself */
+.map-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1150;
+  width: min(340px, calc(100vw - 40px));
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.map-message p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.map-message .button {
+  justify-self: center;
+}
+
 /* loading spinner */
 .spinner {
   width: 13px;
