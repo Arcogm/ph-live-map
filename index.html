@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Live earthquakes and click-anywhere weather on a dark map of the Philippines. Data from USGS and Open-Meteo."
+    />
+    <meta name="theme-color" content="#0b0f14" />
+    <title>PH Live Map — Earthquakes &amp; Weather</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b0f14'/><circle cx='16' cy='16' r='4' fill='%23fbbf24'/><circle cx='16' cy='16' r='9' fill='none' stroke='%23fbbf24' stroke-opacity='.45' stroke-width='2'/></svg>" />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#panel">Skip to controls</a>
+    <main id="map" aria-label="Map of the Philippines showing recent earthquakes"></main>
+
+    <div id="brand" class="card brand">
+      <div class="brand-row">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1>PH Live Map</h1>
+      </div>
+      <p class="brand-sub">Live earthquakes &amp; weather · Philippines</p>
+      <p id="live-status" class="live-status" role="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="live-text">Starting…</span>
+      </p>
+    </div>
+
+    <button id="controls-button" class="controls-button" type="button" aria-expanded="false" aria-controls="panel">
+      Controls
+    </button>
+
+    <aside id="panel" class="card panel" aria-label="Map controls">
+      <div class="panel-scroll">
+        <div class="panel-head">
+          <h2>Controls</h2>
+          <button id="panel-close" class="icon-button" type="button" aria-label="Close controls">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" /></svg>
+          </button>
+        </div>
+
+        <fieldset class="group">
+          <legend>Layers</legend>
+          <label class="check">
+            <input id="toggle-quakes" type="checkbox" checked />
+            <span>Earthquakes</span>
+            <span class="check-note">USGS · 7 days</span>
+          </label>
+          <label class="check">
+            <input id="toggle-weather" type="checkbox" checked />
+            <span>Weather on click</span>
+            <span class="check-note">Open-Meteo</span>
+          </label>
+        </fieldset>
+
+        <div class="group">
+          <label class="select-label" for="filter-mag">Minimum magnitude</label>
+          <select id="filter-mag">
+            <option value="0">All magnitudes</option>
+            <option value="4.5">M 4.5 and above</option>
+            <option value="5.5">M 5.5 and above</option>
+            <option value="6.5">M 6.5 and above</option>
+          </select>
+        </div>
+
+        <div class="group">
+          <h3 class="group-title">Magnitude</h3>
+          <ul class="legend" aria-label="Magnitude color legend">
+            <li><span class="swatch" style="--c: #38bdf8"></span>Under M 4.5</li>
+            <li><span class="swatch" style="--c: #fbbf24"></span>M 4.5 – 5.4</li>
+            <li><span class="swatch" style="--c: #fb923c"></span>M 5.5 – 6.4</li>
+            <li><span class="swatch" style="--c: #ef4444"></span>M 6.5 and above</li>
+            <li><span class="swatch swatch-unknown"></span>Unknown magnitude</li>
+          </ul>
+          <p class="legend-note">Circle size also scales with magnitude.</p>
+        </div>
+
+        <div class="group">
+          <button id="refresh" class="button button-primary" type="button">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M2.5 8a5.5 5.5 0 1 0 1.6 3.9" /><path d="M14 2.5v3.2h-3.2M2 13.5v-3.2h3.2" /></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+
+        <div class="group recent">
+          <h3 class="group-title">Recent earthquakes</h3>
+          <ul id="quake-list" class="quake-list" aria-label="Recent earthquakes, newest first"></ul>
+        </div>
+      </div>
+
+      <footer class="panel-foot">
+        <span>Data</span>
+        <a href="https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php" target="_blank" rel="noopener noreferrer">USGS</a>
+        <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>
+        <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a>
+        <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">Leaflet</a>
+      </footer>
+    </aside>
+
+    <div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+
+    <p class="credits">
+      Data
+      <a href="https://earthquake.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS</a>,
+      <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>,
+      <a href="https://www.esri.com/" target="_blank" rel="noopener noreferrer">Esri</a>
+    </p>
+
+    <noscript>
+      <p class="noscript">PH Live Map needs JavaScript to draw the map and load live data.</p>
+    </noscript>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

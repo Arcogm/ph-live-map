@@ -1,0 +1,19 @@
+{
+  "name": "ph-live-map",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live earthquakes and click-anywhere weather on a dark map of the Philippines.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "vite": "^7.3.8"
+  }
+}
