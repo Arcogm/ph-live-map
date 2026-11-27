@@ -243,11 +243,11 @@ Throttle network to offline after a successful load for >5 min (or temporarily s
 - Consumes: the finished app.
 - Produces: public URL, README with run steps, credits, and learnings.
 
-- [ ] **Step 1: Capture screenshot and demo GIF**
+- [x] **Step 1: Capture screenshot and demo GIF**
 
 Desktop 1440×900 with visible quake circles and one open popup; save `docs/screenshot.png`. Capture 2–3 frames (map + quake popup, weather popup, mobile sheet) and stitch `docs/demo.gif` with ffmpeg (8 fps, 1200px wide). If recording is unavailable, ship the screenshot and say so in the README.
 
-- [ ] **Step 2: Write `README.md`**
+- [x] **Step 2: Write `README.md`**
 
 What it is (3 sentences), screenshot, features list, run (`npm install`, `npm run dev`), build/deploy, data sources and required attribution, USGS-instead-of-PHIVOLCS note, architecture (five lines mapping files to responsibilities), accessibility notes incl. weather-is-click-only limitation, “what I learned” 3–5 sentences.
 

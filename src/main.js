@@ -12,6 +12,9 @@ const PH_ZOOM = 5;
 const ESRI_ATTRIBUTION =
   'Tiles &copy; <a href="https://www.esri.com/">Esri</a> — Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
+const width = document.documentElement.clientWidth;
+const isPhone = width < 760;
+
 const map = L.map("map", {
   center: PH_CENTER,
   zoom: PH_ZOOM,
@@ -21,6 +24,11 @@ const map = L.map("map", {
   worldCopyJump: true,
   attributionControl: true,
 });
+
+// Keep popups clear of the brand block on phones, where it spans the top.
+const POPUP_PADDING = isPhone
+  ? { autoPanPaddingTopLeft: [12, 92], autoPanPaddingBottomRight: [12, 40] }
+  : { autoPanPaddingTopLeft: [332, 16], autoPanPaddingBottomRight: [16, 16] };
 
 // CARTO began watermarking keyless basemap tiles with "API KEY REQUIRED"
 // (verified 2026-11-27), so the dark basemap is Esri's keyless Dark Gray
@@ -48,8 +56,8 @@ L.control.scale({ position: "bottomleft", imperial: false }).addTo(map);
 
 /* ---------- layers ---------- */
 
-const earthquakes = mountEarthquakes(map);
-const weather = mountWeather(map);
+const earthquakes = mountEarthquakes(map, POPUP_PADDING);
+const weather = mountWeather(map, POPUP_PADDING);
 
 // Weather only on a deliberate map click: never on hover, never when the
 // click belonged to a quake circle (circle markers stop bubbling, and this

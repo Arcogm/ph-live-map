@@ -807,6 +807,17 @@ select:hover {
     display: none;
   }
 
+  /* Keep popups inside the phone screen and clear of the brand block. */
+  .leaflet-popup .leaflet-popup-content {
+    min-width: 0;
+    max-width: calc(100vw - 84px);
+    margin: 12px 14px;
+  }
+
+  .leaflet-popup .leaflet-popup-content-wrapper {
+    max-width: calc(100vw - 28px);
+  }
+
   .controls-button {
     display: block;
   }

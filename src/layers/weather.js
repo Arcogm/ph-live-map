@@ -56,9 +56,9 @@ function popupShell(children) {
  * One reusable pin and popup. The map click handler decides when to call
  * `show`; this module owns the loading/error/success states.
  */
-export function mountWeather(map) {
+export function mountWeather(map, popupOptions = {}) {
   const marker = L.marker([0, 0], { icon: PIN_ICON, keyboard: false, bubble: false });
-  const popup = L.popup({ closeButton: true, offset: [0, -2], maxWidth: 280 });
+  const popup = L.popup({ closeButton: true, offset: [0, -2], maxWidth: 280, ...popupOptions });
   let enabled = true;
   let requestId = 0;
 

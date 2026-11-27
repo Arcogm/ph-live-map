@@ -59,7 +59,7 @@ function quakePopup(quake) {
  * Draw quake circles on the map. The layer owns marker state; the caller
  * hands it a list whenever fresh data arrives.
  */
-export function mountEarthquakes(map) {
+export function mountEarthquakes(map, popupOptions = {}) {
   const layer = L.layerGroup().addTo(map);
   const markers = new Map();
   let quakes = [];
@@ -78,7 +78,7 @@ export function mountEarthquakes(map) {
       className: "quake-circle",
       ariaLabel: `Magnitude ${quake.mag ?? "unknown"} earthquake — ${quake.place}`,
     });
-    marker.bindPopup(quakePopup(quake), { closeButton: true, maxWidth: 280 });
+    marker.bindPopup(quakePopup(quake), { closeButton: true, maxWidth: 280, ...popupOptions });
     return marker;
   }
 
