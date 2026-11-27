@@ -1,4 +1,4 @@
-import { formatManila } from "./format.js";
+import { formatManila, formatManilaFull, relativeTime } from "./format.js";
 import { isStale } from "./freshness.js";
 
 /** Quakes at or above the threshold; unknown magnitudes only under "All". */
@@ -6,6 +6,22 @@ export function filterQuakes(quakes, minMag) {
   const threshold = Number(minMag) || 0;
   if (threshold === 0) return quakes.slice();
   return quakes.filter((q) => q.mag != null && q.mag >= threshold);
+}
+
+/**
+ * One list row: "M 5.1", relative time ("3 h ago"), and the full Manila date
+ * for hover — the list says how recent a quake is, not just its clock time.
+ */
+export function quakeRowCopy(quake, now = Date.now()) {
+  const mag = quake.mag == null ? "M ?" : `M ${quake.mag.toFixed(1)}`;
+  const relative = relativeTime(quake.time, now);
+  return {
+    mag,
+    place: quake.place,
+    time: relative,
+    timeTitle: formatManilaFull(quake.time),
+    label: `${mag} earthquake, ${quake.place}, ${relative === "unknown" ? "time unknown" : relative}`,
+  };
 }
 
 /** The one sentence to show when nothing is drawn, or null. */

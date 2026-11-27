@@ -1,7 +1,7 @@
-import { formatManila, magnitudeBin, relativeTime } from "./format.js";
-import { emptyMessage, filterQuakes, panelStatusCopy } from "./panel-state.js";
+import { formatManila, magnitudeBin } from "./format.js";
+import { emptyMessage, filterQuakes, panelStatusCopy, quakeRowCopy } from "./panel-state.js";
 
-export { emptyMessage, filterQuakes, panelStatusCopy } from "./panel-state.js";
+export { emptyMessage, filterQuakes, panelStatusCopy, quakeRowCopy } from "./panel-state.js";
 
 const MAX_LIST = 8;
 
@@ -13,26 +13,29 @@ const MAG_COLORS = {
   unknown: "#94a3b8",
 };
 
-/** Two shorthand summaries for the footer: "M 5.1" and "14:02". */
+/** One list row: magnitude, place, and how long ago — full date on hover. */
 function listRow(quake, onSelect) {
+  const copy = quakeRowCopy(quake);
   const li = document.createElement("li");
   const button = document.createElement("button");
   button.type = "button";
   button.className = "quake-item";
   button.style.setProperty("--c", MAG_COLORS[magnitudeBin(quake.mag)]);
-  button.title = quake.place;
+  button.title = `${quake.place} — ${copy.timeTitle}`;
+  button.setAttribute("aria-label", copy.label);
 
   const mag = document.createElement("span");
   mag.className = "q-mag";
-  mag.textContent = quake.mag == null ? "M ?" : `M ${quake.mag.toFixed(1)}`;
+  mag.textContent = copy.mag;
 
   const place = document.createElement("span");
   place.className = "q-place";
-  place.textContent = quake.place;
+  place.textContent = copy.place;
 
   const time = document.createElement("span");
   time.className = "q-time";
-  time.textContent = formatManila(quake.time);
+  time.textContent = copy.time;
+  time.title = copy.timeTitle;
 
   button.append(mag, place, time);
   button.addEventListener("click", () => onSelect(quake.id));

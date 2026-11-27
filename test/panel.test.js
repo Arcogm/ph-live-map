@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { emptyMessage, filterQuakes, panelStatusCopy } from "../src/ui/panel-state.js";
+import { emptyMessage, filterQuakes, panelStatusCopy, quakeRowCopy } from "../src/ui/panel-state.js";
 
 const quake = (id, mag) => ({ id, mag, place: `Place ${id}`, time: 1, lat: 0, lon: 0, depthKm: 1, url: null });
 
@@ -38,6 +38,28 @@ test("panel status copy mirrors the brand states", () => {
   });
   assert.deepEqual(panelStatusCopy({ status: "error", fetchedAt: null }), { state: "offline", text: "Offline · no data yet" });
   assert.deepEqual(panelStatusCopy({ status: "idle", fetchedAt: null }), { state: "idle", text: "Starting…" });
+});
+
+test("list rows read as relative time with the full date on hover", () => {
+  const time = Date.UTC(2026, 10, 27, 8, 0, 0);
+  const now = time + 3 * 3_600_000;
+  assert.deepEqual(quakeRowCopy({ id: "a", mag: 5.1, place: "Mindoro, Philippines", time }, now), {
+    mag: "M 5.1",
+    place: "Mindoro, Philippines",
+    time: "3 h ago",
+    timeTitle: "27 Nov 2026, 16:00",
+    label: "M 5.1 earthquake, Mindoro, Philippines, 3 h ago",
+  });
+});
+
+test("list rows keep unknown magnitude and time honest", () => {
+  assert.deepEqual(quakeRowCopy({ id: "b", mag: null, place: "Unknown location", time: null }, 0), {
+    mag: "M ?",
+    place: "Unknown location",
+    time: "unknown",
+    timeTitle: "—",
+    label: "M ? earthquake, Unknown location, time unknown",
+  });
 });
 
 test("kept data turns stale once it is older than the ttl", () => {
